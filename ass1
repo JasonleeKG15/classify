@@ -1,0 +1,108 @@
+classification:
+	PUSH {R14}
+	LDR R5,=PT10
+	STR R0,[R5]
+	LDR R5,=CT
+	STR R1,[R5]
+	LDR R5,=CLS
+	STR R2,[R5]
+	LDR R5,=NEWC
+	STR R3,[R5]
+
+	mov r8,#1
+	ldr r5, [r3,#0x4]
+	cmp r5, #1
+	bls CENT_Z_OR_ONE
+
+	MOV R12,#1 @ counter for points
+	MOV R11,#1 @ counter for centroids
+
+
+	LDR R4, [R0] @point x
+	LDR R5, [R0,#0x4]@point y
+	LDR R6, [R1] @centroid x
+	ldr R8, [R1,#0x4] @centroid y
+	sub r6,r4@ R6 and 7 used to store centroid and the difference in x and y
+	sub R8,r5 @using formula (x1-xcen)^2 + (y1-ycen)^2 = distance
+	mul r6,r6
+	mul R8,R8
+	add r3,r6,R8 @r3 holds the distance btw pt and first centroid
+	mov r10,#1 @class register
+	str r10,[r2]
+	BL SUBROUTINE
+
+	POP {R14}
+	BX LR
+
+SUBROUTINE:
+
+
+	ldr r6,[r1,#0x8]!@ subsequent centroid
+	ldr R8,[r1,#0x4]
+	sub r6,r4@ R6 and 7 used to store centroid and the difference in x and y
+	sub R8,r5 @using formula (x1-xcen)^2 + (y1-ycen)^2 = distance
+	mul r6,r6
+	mul R8,R8
+	add r9,r6,R8
+	add r10,#1
+	add r11,#1
+	cmp r3,r9
+	itt pl
+	movpl r3,r9
+	strpl r10,[r2]
+
+	ldr r3, =NEWC
+	ldr r3, [r3]
+
+	ldr r9,[r3,#0x4]
+	cmp r11,r9
+	bne SUBROUTINE
+@@ if anything delete from here except BX LR
+	ldr r9,[r3]
+	cmp r12,r9
+	bne PTLOOP
+	BX LR
+
+PTLOOP:
+	mov r11, #1@ reset centroid counter
+	add r12, #1
+	ldr r1, =CT@ return to the first centroid
+
+	LDR R4, [R0,#0x8]! @point x
+	LDR R5, [R0,#0x4]@point y
+	LDR R1, [R1] @centroid x
+
+	LDR R6, [R1]
+	ldr R8, [R1,#0x4] @centroid y
+	sub r6,r4@ R6 and 7 used to store centroid and the difference in x and y
+	sub R8,r5 @using formula (x1-xcen)^2 + (y1-ycen)^2 = distance
+	mul r6,r6
+	mul R8,R8
+	add r3,r6,R8 @r3 holds the distance btw pt and first centroid
+
+	mov r10,#1 @class register
+	str r10,[r2,#0x4]!
+	b SUBROUTINE
+
+
+CENT_Z_OR_ONE:
+
+
+
+	ldr r4,[r3]
+	cmp r5, #0
+	itt eq
+	POPEQ {R14}
+	BXEQ LR
+
+	mov r6,#1
+	str r6,[r2],#0x4
+
+	cmp r8,r4
+	itt ne
+	addne r8,#1
+	bne CENT_Z_OR_ONE
+
+
+	pop {R14}
+	BX LR
