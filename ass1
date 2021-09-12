@@ -1,5 +1,5 @@
 classification:
-	PUSH {R14}
+	PUSH {R0-R12,R14}
 	LDR R5,=PT10
 	STR R0,[R5]
 	LDR R5,=CT
@@ -8,11 +8,6 @@ classification:
 	STR R2,[R5]
 	LDR R5,=NEWC
 	STR R3,[R5]
-
-	mov r8,#1
-	ldr r5, [r3,#0x4]
-	cmp r5, #1
-	bls CENT_Z_OR_ONE
 
 	MOV R12,#1 @ counter for points
 	MOV R11,#1 @ counter for centroids
@@ -31,7 +26,7 @@ classification:
 	str r10,[r2]
 	BL SUBROUTINE
 
-	POP {R14}
+	POP {R0-R12,R14}
 	BX LR
 
 SUBROUTINE:
@@ -84,25 +79,8 @@ PTLOOP:
 	str r10,[r2,#0x4]!
 	b SUBROUTINE
 
-
-CENT_Z_OR_ONE:
-
-
-
-	ldr r4,[r3]
-	cmp r5, #0
-	itt eq
-	POPEQ {R14}
-	BXEQ LR
-
-	mov r6,#1
-	str r6,[r2],#0x4
-
-	cmp r8,r4
-	itt ne
-	addne r8,#1
-	bne CENT_Z_OR_ONE
-
-
-	pop {R14}
-	BX LR
+@ STORE ADDRESS OF ARRAYS
+.lcomm PT10 4
+.lcomm CT 4
+.lcomm CLS 4
+.lcomm NEWC 4
