@@ -64,8 +64,8 @@ CLALOOP:
 
 	cmp r3,#0
 	itt ne
-	UDIVne r8,r3 @ avg x
-	UDIVne r9,r3 @ avg y
+	SDIVne r8,r3 @ avg x
+	SDIVne r9,r3 @ avg y
 
 	ldr r3, =NEWC@address of new_centroid array back to r3
 	ldr r3,[r3]
