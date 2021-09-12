@@ -1,0 +1,87 @@
+find_new_centroids:
+	PUSH {R14}
+
+	LDR R5,=PT
+	STR R0,[R5]
+	LDR R5,=CT
+	STR R1,[R5]
+	LDR R5,=CLS
+	STR R2,[R5]
+	LDR R5,=NEWC
+	STR R3,[R5]
+
+	@ storing M and N in R2 address
+	LDR r4, [r3]
+	str r4, [r1]
+	ldr r4, [r3,#0x4]
+	str r4, [r1,#0x4]
+
+
+
+	mov r12, #1 @ counter for class
+
+
+	BL SUBROUTINE
+
+	POP {R14}
+	BX LR
+
+SUBROUTINE:
+
+
+
+	mov r11,#0@ counter for number of points, resets counter
+	ldr r4,[r1,#0x4]
+	mov r3,#0
+	mov r8,#0
+	mov r9,#0
+	add r4,#1
+	ldr r5,=CLS@ reset the address in R2
+	ldr r2,[r5]
+	ldr r5, =PT
+	ldr r0, [r5]
+	cmp r12, r4@ cmp class and class counter
+	bne CLALOOP
+
+	BX LR
+
+CLALOOP:
+
+	ldr r10, [r2], #0x4@ scrolling through the class list
+	add r11,#1
+
+	ldr r6, [r0,#0x4]
+	ldr r5, [r0], #0x8
+	cmp r12,r10 @ cmp counter and class
+	ittt eq
+	addeq r8,r5 @ total x value
+	addeq r9,r6 @ total y value
+	addeq r3,#1
+
+	LDR r4, [r1]
+	cmp r11,r4 @ check whether reached end of  points array
+	bne CLALOOP@ loop through points
+
+	cmp r3,#0
+	itt ne
+	UDIVne r8,r3 @ avg x
+	UDIVne r9,r3 @ avg y
+
+	ldr r3, =NEWC@address of new_centroid array back to r3
+	ldr r3,[r3]
+	str r9, [r3,#0x4]
+	str r8, [r3], #0x8 @ updates to next new centroid slot
+
+
+	add r12,#0x1@ updates centroid counter
+	ldr r5, =NEWC@ upddate NEWC of new slot of new ct array
+	str r3,[R5]
+
+	b SUBROUTINE
+
+
+
+.lcomm PT 4
+.lcomm CT 4
+.lcomm CLS 4
+.lcomm NEWC 4
