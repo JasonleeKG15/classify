@@ -1,5 +1,5 @@
 find_new_centroids:
-	PUSH {R14}
+	PUSH {R0-R12,R14}
 
 	LDR R5,=PT
 	STR R0,[R5]
@@ -23,7 +23,7 @@ find_new_centroids:
 
 	BL SUBROUTINE
 
-	POP {R14}
+	POP {R0-R12,R14}
 	BX LR
 
 SUBROUTINE:
