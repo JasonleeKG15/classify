@@ -17,11 +17,11 @@ classification:
 	LDR R5, [R0,#0x4]@point y
 	LDR R6, [R1] @centroid x
 	ldr R8, [R1,#0x4] @centroid y
-	sub r6,r4@ R6 and 7 used to store centroid and the difference in x and y
+	sub r6,r4@ R6 and 8 used to store centroid and the difference in x and y
 	sub R8,r5 @using formula (x1-xcen)^2 + (y1-ycen)^2 = distance
 	mul r6,r6
 	mul R8,R8
-	add r3,r6,R8 @r3 holds the distance btw pt and first centroid
+	add r7,r6,R8 @r3 holds the distance btw pt and first centroid
 	mov r10,#1 @class register
 	str r10,[r2]
 	BL SUBROUTINE
@@ -41,13 +41,12 @@ SUBROUTINE:
 	add r9,r6,R8
 	add r10,#1
 	add r11,#1
-	cmp r3,r9
+	cmp r7,r9
 	itt pl
-	movpl r3,r9
+	movpl r7,r9
 	strpl r10,[r2]
 
-	ldr r3, =NEWC
-	ldr r3, [r3]
+
 
 	ldr r9,[r3,#0x4]
 	cmp r11,r9
@@ -60,7 +59,7 @@ SUBROUTINE:
 
 PTLOOP:
 	mov r11, #1@ reset centroid counter
-	add r12, #1
+	add r12, #1@ add to point counter
 	ldr r1, =CT@ return to the first centroid
 
 	LDR R4, [R0,#0x8]! @point x
@@ -73,7 +72,7 @@ PTLOOP:
 	sub R8,r5 @using formula (x1-xcen)^2 + (y1-ycen)^2 = distance
 	mul r6,r6
 	mul R8,R8
-	add r3,r6,R8 @r3 holds the distance btw pt and first centroid
+	add r7,r6,R8 @r3 holds the distance btw pt and first centroid
 
 	mov r10,#1 @class register
 	str r10,[r2,#0x4]!
